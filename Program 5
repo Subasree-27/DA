@@ -1,0 +1,49 @@
+import matplotlib.pyplot as plt 
+from sklearn.datasets import make_classification 
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LogisticRegression 
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix 
+x, y = make_classification( 
+    n_samples=800, 
+    n_features=5, 
+    n_informative=3, 
+    random_state=42 
+) 
+xtr, xte, ytr, yte = train_test_split( 
+    x, y, 
+    test_size=0.3, 
+    random_state=42 
+) 
+lr = LogisticRegression(max_iter=1000) 
+dt = DecisionTreeClassifier(max_depth=4) 
+lr.fit(xtr, ytr) 
+dt.fit(xtr, ytr) 
+lr_p = lr.predict_proba(xte)[:, 1] 
+dt_p = dt.predict_proba(xte)[:, 1] 
+lr_auc = roc_auc_score(yte, lr_p) 
+dt_auc = roc_auc_score(yte, dt_p) 
+print("Logistic Regression AUC:", round(lr_auc, 3)) 
+print("Decision Tree AUC:", round(dt_auc, 3)) 
+for probs, label in [(lr_p, "Logistic Regression"),  
+                     (dt_p, "Decision Tree")]: 
+    fpr, tpr, _ = roc_curve(yte, probs) 
+    plt.plot(fpr, tpr, label=label) 
+plt.plot([0, 1], [0, 1], "k--") 
+plt.xlabel("False Positive Rate") 
+plt.ylabel("True Positive Rate") 
+plt.title("ROC Curve Comparison") 
+plt.legend() 
+plt.savefig("model_comparison.png") 
+plt.close() 
+ cm = confusion_matrix(yte, dt.predict(xte)) 
+with open("CreditRisk_Report.md", "w") as f: 
+    f.write(f"""# Credit Risk Scoring Report 
+- Logistic Regression AUC: {lr_auc:.3f} 
+- Decision Tree AUC: {dt_auc:.3f} 
+{cm} 
+""") 
+print("Files Created:") 
+print("- model_comparison.png") 
+print("- CreditRisk_Report.md") 
+ 
