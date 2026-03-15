@@ -1,0 +1,55 @@
+from pathlib import Path 
+import sys 
+import pandas as pd 
+import numpy as np 
+path = find_input() 
+df = pd.read_csv(path) 
+if 'transaction_amount' not in df.columns: 
+    raise KeyError("Expected column 'transaction_amount' not found.") 
+df['transaction_amount'] = pd.to_numeric( 
+    df['transaction_amount'] 
+    .astype(str) 
+    .str.replace(',', '', regex=False) 
+    .str.replace(r'[^0-9\.\-]', '', regex=True), 
+    errors='coerce' 
+) 
+df['transaction_amount'].fillna(df['transaction_amount'].median(), inplace=True) 
+if 'credit_score' in df.columns: 
+    df['credit_score'].fillna(df['credit_score'].mean(), inplace=True) 
+if 'customer_id' in df.columns: 
+    df['customer_id'] = ( 
+        df['customer_id'] 
+        .fillna('unknown') 
+        .astype(str) 
+        .str.lower() 
+        .str.replace(r'[^a-z0-9]', '', regex=True) 
+    ) 
+df.drop_duplicates(inplace=True) 
+Q1 = df['transaction_amount'].quantile(0.25) 
+Q3 = df['transaction_amount'].quantile(0.75) 
+IQR = Q3 - Q1 
+lower = Q1 - 1.5 * IQR 
+upper = Q3 + 1.5 * IQR 
+df = df[df['transaction_amount'].between(lower, upper)] 
+if 'transaction_date' in df.columns: 
+    df['transaction_date'] = pd.to_datetime( 
+        df['transaction_date'], 
+        errors='coerce' 
+    ).dt.strftime('%Y-%m-%d') 
+df.to_csv("Cleaned_Fintech.csv", index=False) 
+with open("cleaning_steps.md", "w") as f: 
+    f.write("\n".join([ 
+        "# Data Cleaning Steps – FinTech Dataset", 
+        "1. Imported raw dataset.", 
+        "2. Validated required columns.", 
+        "3. Cleaned transaction_amount column.", 
+        "4. Imputed missing values (median/mean).", 
+        "5. Cleaned customer_id values.", 
+        "6. Removed duplicate records.", 
+        "7. Removed outliers using IQR method.", 
+        "8. Standardized transaction_date format.", 
+        "9. Saved cleaned dataset." 
+    ])) 
+ 
+print("Data cleaning completed successfully.") 
+ 
