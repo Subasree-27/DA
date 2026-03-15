@@ -1,0 +1,33 @@
+import os 
+import shutil 
+folder = "File_Z" 
+if not os.path.exists(folder): 
+    os.mkdir(folder) 
+    print("Folder Created:", folder) 
+else: 
+    print("Folder Already Exists:", folder) 
+filepath = os.path.join(folder, "mytextfileishere.txt") 
+with open(filepath, "w") as file: 
+    file.write("This is my content\n") 
+    file.write("This is my first line\n") 
+    file.write("This is my second line\n") 
+print("Written task is done") 
+with open(filepath, "a") as file: 
+    file.write("This is my Appended Content\n") 
+print("Appended task is done") 
+print("------ Reading my File now ------\n") 
+with open(filepath, "r") as file: 
+    content = file.read() 
+    print(content) 
+print("------ Reading file line by line ------\n") 
+with open(filepath, "r") as file: 
+    for line in file: 
+        print(line.strip()) 
+copy_path = os.path.join(folder, "example_copyfile.txt") 
+shutil.copy(filepath, copy_path) 
+print("File COPIED TO:", copy_path) 
+renamed_path = os.path.join(folder, "renamed_file.txt") 
+os.rename(copy_path, renamed_path) 
+print("File has been RENAMED to:", renamed_path)
+# os.remove(renamed_path) 
+# print("FILE WAS DELETED:", renamed_path) 
