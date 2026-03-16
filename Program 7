@@ -1,0 +1,25 @@
+import pandas as pd 
+import numpy as np 
+df = pd.read_csv("stockfile.csv", parse_dates=["Date"]) 
+df = df.sort_values("Date") 
+df["SMA_S"] = df["Close"].rolling(20).mean() 
+df["SMA_L"] = df["Close"].rolling(50).mean() 
+df["Pos"] = np.where(df["SMA_S"] > df["SMA_L"], 1, 0) 
+df["Ret"] = df["Close"].pct_change() 
+df["StratRet"] = df["Ret"] * df["Pos"].shift(1) 
+df.dropna(inplace=True) 
+sharpe = np.sqrt(252) * df["StratRet"].mean() / df["StratRet"].std() 
+win_pct = (df["StratRet"] > 0).mean() 
+cum = df["StratRet"].cumsum() 
+drawdown = (cum - cum.cummax()).min() 
+df.to_csv("Output_Backtest_Log.csv", index=False) 
+with open("Strategy_Report.md", "w") as f: 
+    f.write(f"""# Strategy Report 
+
+Sharpe Ratio: {sharpe:.2f} 
+Win %: {win_pct:.2%} 
+Max Drawdown: {drawdown:.2%} 
+""") 
+print("Backtest completed successfully.") 
+ 
+ 
