@@ -1,0 +1,29 @@
+import numpy as np  
+import pandas as pd  
+import matplotlib.pyplot as plt  
+import seaborn as sns 
+plt.style.use('default') 
+sns.set_palette("Set2") 
+np.random.seed(1) 
+returns=pd.DataFrame(np.random.randn(254,4)/100,columns=['A','B','C','D']) 
+mean, cov = returns.mean(), returns.cov() 
+results,weights_list = [],[] # Creating the empty list to store the results and weights of the portfolios 
+for _ in range(5000):  #Randomly generate 5000 portfolios 
+    w = np.random.random(4)  
+    w /= w.sum() # w=w/w.sum() to ensure the weights sum to 1 
+    ret = np.dot(w,mean)*252 
+    risk= np.sqrt(np.dot(w.T,np.dot(cov*252,w))) 
+    results.append([risk,ret]) 
+    weights_list.append(w) 
+results = np.array(results)  
+sharpe = results[:,1]/results[:,0] 
+best= weights_list[np.argmax(sharpe)] 
+pd.DataFrame(best, index=returns.columns, columns=['Weight']).to_csv("Portfolio_Weights.csv") 
+plt.scatter(results[:,0],results[:,1],c=sharpe) 
+plt.scatter(results[:,0],results[:,1],c=sharpe) 
+plt.xlabel("Risk"); plt.ylabel("Return") 
+plt.colorbar(label="Sharpe Ratio") 
+plt.savefig("FrontierPlot.png") 
+plt.show 
+ 
+ 
