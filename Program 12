@@ -1,0 +1,32 @@
+import pandas as pd 
+import json 
+age = 30 
+income = 60000 
+risk = "Medium"   # Low / Medium / High 
+if risk == "Low": 
+    portfolio = {"Stocks": 30, "Bonds": 50, "Cash": 20} 
+elif risk == "Medium": 
+    portfolio = {"Stocks": 50, "Bonds": 30, "Cash": 20} 
+else:  # risk == "High" 
+    portfolio = {"Stocks": 70, "Bonds": 20, "Cash": 10} 
+output = pd.DataFrame({ 
+    "Age": [age], 
+    "Income": [income], 
+    "Risk": [risk], 
+    "Stocks(%)": [portfolio["Stocks"]], 
+    "Bonds(%)": [portfolio["Bonds"]], 
+    "Cash(%)": [portfolio["Cash"]] 
+}) 
+output.to_csv("RoboAdvisor_Output12.csv", index=False)  
+notebook_content = { 
+"user_info": { 
+        "age": age, 
+        "income": income, 
+        "risk_tolerance": risk 
+    }, 
+    "portfolio_allocation": portfolio 
+} 
+with open("RoboAdvisor_Notebook12.json", "w") as f: 
+    json.dump(notebook_content, f) 
+print("Files Generated Successfully!") 
+ 
