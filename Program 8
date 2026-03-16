@@ -1,0 +1,12 @@
+import pandas as pd 
+pos=["gain","rise","up","positive","good","strong","profit","beat","surge","growth","win"] 
+neg=["loss","fall","down","negative","bad","weak","decline","miss","drop","shrink","lose"] 
+df = pd.read_csv("news_stock.csv") 
+df["Sentiment"]= df["Headline"].apply( 
+    lambda x: sum(w in x.lower() for w in pos)- sum(w in x.lower() for w in neg) 
+) 
+df["Next_Return"]= df["Close"].pct_change().shift(-1) 
+corr = df["Sentiment"].corr(df["Next_Return"]) 
+df[["Date","Sentiment","Next_Return"]].to_csv("Sentiment_Scores.csv", index=False) 
+open("Correlation_Report.md","w").write(f"#Report\n\nCorrelation: {corr:.2f}") 
+ 
