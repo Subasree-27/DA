@@ -1,0 +1,24 @@
+import numpy as np 
+import pandas as pd 
+import matplotlib.pyplot as plt 
+from statsmodels.tsa.arima.model import ARIMA 
+from sklearn.metrics import mean_squared_error, mean_absolute_error 
+data = np.arange(1,21) + np.random.normal(0,1,20) 
+train = data[:15] 
+test = data[15:]
+model = ARIMA(train,order=(2,1,2)).fit() 
+pred = model.forecast(len(test)) 
+mean_absolute_error functions 
+#RSME - ROOT MEAN SQUARED ERROR, MAE - MEAN ABSOLUTE ERROR 
+rsme=np.sqrt(mean_squared_error(test,pred)) 
+mae=mean_absolute_error(test,pred) 
+print("RMSE:",rsme) 
+print("MAE:",mae) 
+df = pd.DataFrame({'Actual':test,'Predicted':pred}) 
+df.to_csv('output.csv',index=False) 
+ plt.plot(range(len(train),len(train)+len(test)),test, label = 'Actual') 
+plt.plot(range(len(train),len(train)+len(test)),pred, label = 'Prediction') 
+plt.legend();plt.title('ARIMA Forecast') 
+plt.savefig('output_plot.png');plt.show() 
+ 
+ 
